@@ -544,6 +544,54 @@
     </style>
 </head>
 
+    <script>
+document.getElementById("save-contact")
+  .addEventListener("click", async function (event) {
+    event.preventDefault();
+
+    const status = document.getElementById("status");
+    const german = document.documentElement.lang === "de";
+
+    try {
+      const response = await fetch(this.href, {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("Contact file could not be loaded");
+      }
+
+      const content = await response.text();
+
+      if (!content.trimStart().startsWith("BEGIN:VCARD")) {
+        throw new Error("Invalid contact file");
+      }
+
+      const file = new Blob([content], {
+        type: "text/vcard;charset=utf-8"
+      });
+
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "stephane-tolale.vcf";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+      status.textContent = german
+        ? "Öffne die heruntergeladene VCF-Datei, um den Kontakt zu speichern."
+        : "Open the downloaded VCF file to save the contact.";
+    } catch (error) {
+      status.textContent = german
+        ? "Download fehlgeschlagen. Bitte versuche es erneut."
+        : "Download failed. Please try again.";
+    }
+  });
+</script>
+
 <body>
     <main>
         <header>
@@ -557,7 +605,7 @@
                 <div class="eyebrow" data-i="eyebrow">ARCHITECTURE. CODE. SOLUTIONS.</div>
                 <h1>Stephane<span>Tolale.</span></h1>
                 <p class="role" data-i="role">Software Architect &amp;<br>Senior .NET Developer</p>
-                <div class="actions"><a class="button primary" type="text/vcard" href="stephane-tolale.vcf" data-i="save">Save
+                <div class="actions"><a class="button primary" id="save-contact" type="text/vcard" href="stephane-tolale.vcf" download="stephane-tolale.vcf" data-i="save">Save
                         contact ↓</a><a class="button" href="mailto:stephane.tolale@outlook.de" data-i="talk">Let’s talk
                         ↗</a></div>
             </div>
